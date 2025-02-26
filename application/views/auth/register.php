@@ -15,7 +15,7 @@
         <form id="register-form">
             <div class="mb-3">
                 <label for="nama" class="form-label">Nama Lengkap</label>
-                <input type="text" class="form-control" id="nama" name="nama" required>
+                <input type="text" class="form-control" id="name" name="name" required>
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
@@ -42,7 +42,7 @@ document.getElementById("register-form").addEventListener("submit", async functi
     event.preventDefault();
 
     let jsonData = {
-        nama: document.getElementById("nama").value,
+        name: document.getElementById("name").value,
         email: document.getElementById("email").value,
         password: document.getElementById("password").value,
         confirm_password: document.getElementById("confirm_password").value
