@@ -15,7 +15,7 @@ use Firebase\JWT\Key;
 
 class AuthController extends CI_Controller {
 
-    private $secret_key = "JanganGiveItTahu"; // Ganti dengan key yang lebih kuat
+    private $secret_key = "JanganGiveItTahu"; 
 
     public function __construct() {
         parent::__construct();
@@ -76,6 +76,9 @@ class AuthController extends CI_Controller {
             return;
         }
     
+        // Hapus token yang sudah expired sebelum menyimpan token baru
+        $this->AuthModel->delete_expired_tokens();
+    
         $payload = [
             'id' => $user->id,
             'email' => $user->email,
@@ -89,6 +92,7 @@ class AuthController extends CI_Controller {
     
         echo json_encode(['status' => 'success', 'message' => 'Login berhasil', 'token' => $token]);
     }
+    
     
     
     public function logout()
