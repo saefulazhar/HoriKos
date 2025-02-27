@@ -57,10 +57,13 @@ $route['translate_uri_dashes'] = FALSE;
 $route['auth/register'] = 'AuthController/registerPage';
 
 
-//Routes API
+//Routes API 
+
 $route['api/register'] = 'AuthController/register';
 $route['api/login'] = 'AuthController/login';
 $route['api/logout'] = 'AuthController/logout';
+
+$route['api/user/profile'] = 'UserController/getProfile';
 
 
 // Tambahkan untuk tes $route['api/testdb'] = 'AuthController/testDB'; 
