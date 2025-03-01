@@ -95,4 +95,7 @@ class AuthController extends CI_Controller {
     public function registerPage() {
         $this->load->view('auth/register'); // Load view untuk form register
     }
+
+    
+    
 }
