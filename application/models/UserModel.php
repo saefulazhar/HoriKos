@@ -16,5 +16,12 @@ class UserModel extends CI_Model {
         $this->db->where('id', $user_id);
         return $this->db->update('users', ['role' => $new_role]);
     }
+
+    public function updateUserProfile($userId, $data)
+{
+    $this->db->where('id', $userId);
+    return $this->db->update('users', $data);
+}
+
     
 }
