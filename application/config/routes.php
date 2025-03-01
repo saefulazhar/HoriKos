@@ -64,6 +64,7 @@ $route['api/login'] = 'AuthController/login';
 $route['api/logout'] = 'AuthController/logout';
 
 $route['api/user/profile'] = 'UserController/getProfile';
+$route['api/user/upgradeToPemilik'] = 'UserController/upgradeToPemilik';
 
 
 // Tambahkan untuk tes $route['api/testdb'] = 'AuthController/testDB'; 

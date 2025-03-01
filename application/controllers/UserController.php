@@ -63,4 +63,34 @@ class UserController extends CI_Controller {
                 ->set_output(json_encode(['status' => 'error', 'message' => 'Token tidak valid']));
         }
     }
+
+    public function upgradeToPemilik() {
+        header('Content-Type: application/json');
+    
+        // Ambil token dari header
+        $headers = $this->input->request_headers();
+        if (!isset($headers['Authorization'])) {
+            echo json_encode(['status' => 'error', 'message' => 'Token tidak ditemukan']);
+            return;
+        }
+    
+        $token = str_replace('Bearer ', '', $headers['Authorization']);
+    
+        // Decode token untuk mendapatkan user_id
+        try {
+            $decoded = JWT::decode($token, new Key($this->secret_key, 'HS256'));
+            $user_id = $decoded->id;
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Token tidak valid']);
+            return;
+        }
+    
+        // Update role user menjadi "pemilik"
+        $this->load->model('AuthModel');
+        if ($this->UserModel->updateUserRole($user_id, 'pemilik')) {
+            echo json_encode(['status' => 'success', 'message' => 'Anda sekarang menjadi pemilik kos']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Gagal mengubah role']);
+        }
+    }
 }
