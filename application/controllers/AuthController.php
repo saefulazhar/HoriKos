@@ -4,18 +4,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
-
 /**
  * @property CI_DB_query_builder $db
  * @property CI_Input $input
  * @property CI_Output $output
  * @property AuthModel $AuthModel
  */
-
-
 class AuthController extends CI_Controller {
-
-    private $secret_key = "JanganGiveItTahu"; // Ganti dengan key yang lebih kuat
 
     public function __construct() {
         parent::__construct();
@@ -24,15 +19,12 @@ class AuthController extends CI_Controller {
         $this->load->model('AuthModel');
         $this->load->helper(array('url', 'form'));
         $this->load->library('form_validation');
-        
     }
 
     public function index() {
         header('Content-Type: application/json');
         echo json_encode(['status' => 'error', 'message' => 'Silakan gunakan endpoint API yang sesuai']);
     }
-    
-    
 
     public function register() {
         header('Content-Type: application/json');
@@ -44,21 +36,17 @@ class AuthController extends CI_Controller {
             return;
         }
     
-        // Cek apakah email sudah terdaftar
         if ($this->AuthModel->check_email_exists($data['email'])) {
             echo json_encode(['status' => 'error', 'message' => 'Email sudah digunakan']);
             return;
         }
     
-        // Simpan data user
         if ($this->AuthModel->register_user($data)) {
             echo json_encode(['status' => 'success', 'message' => 'Registrasi berhasil']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Gagal mendaftar, coba lagi']);
         }
     }
-    
-    
 
     public function login() {
         header('Content-Type: application/json');
@@ -76,64 +64,42 @@ class AuthController extends CI_Controller {
             return;
         }
     
-        $payload = [
-            'id' => $user->id,
-            'email' => $user->email,
-            'role' => $user->role,
-            'iat' => time(),
-            'exp' => time() + (60 * 60)
-        ];
-    
-        $token = JWT::encode($payload, $this->secret_key, 'HS256');
+        $token = $this->AuthModel->generate_token($user); // Panggil dari Model
         $this->AuthModel->save_token($user->id, $token);
     
         echo json_encode(['status' => 'success', 'message' => 'Login berhasil', 'token' => $token]);
     }
+
+    public function logout() {
+        $headers = $this->input->request_headers();
+        if (!isset($headers['Authorization'])) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => 'error', 'message' => 'Token tidak ditemukan']));
+            return;
+        }
     
+        $token = str_replace('Bearer ', '', $headers['Authorization']);
     
-    public function logout()
-{
-    $headers = $this->input->request_headers();
-    if (!isset($headers['Authorization'])) {
-        $this->output
-            ->set_content_type('application/json')
-            ->set_output(json_encode(['status' => 'error', 'message' => 'Token tidak ditemukan']));
-        return;
+        if ($this->AuthModel->delete_token($token)) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => 'success', 'message' => 'Logout berhasil dan token dihapus']));
+        } else {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => 'error', 'message' => 'Token gagal dihapus']));
+        }
     }
-
-    $token = str_replace('Bearer ', '', $headers['Authorization']);
-
-    // Cek apakah token ada di database sebelum dihapus
-    $query = $this->db->get_where('user_login_tokens', ['token' => $token]);
-
-    if ($query->num_rows() == 0) {
-        $this->output
-            ->set_content_type('application/json')
-            ->set_output(json_encode(['status' => 'error', 'message' => 'Token tidak ditemukan di database']));
-        return;
-    }
-
-    // Panggil fungsi delete_token dari AuthModel
-    if ($this->AuthModel->delete_token($token)) {
-        $this->output
-            ->set_content_type('application/json')
-            ->set_output(json_encode(['status' => 'success', 'message' => 'Logout berhasil dan token dihapus']));
-    } else {
-        $this->output
-            ->set_content_type('application/json')
-            ->set_output(json_encode(['status' => 'error', 'message' => 'Token gagal dihapus']));
-    }
-}
 
     public function registerPage() {
         $this->load->view('auth/register'); // Load view untuk form register
     }
 
+    public function loginPage() {
+        $this->load->view('auth/login'); // Load view untuk form login
+    }
 
-
-    
-}    
     
     
-    
-
+}
